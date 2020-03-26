@@ -1,98 +1,125 @@
 from django.shortcuts import render
 from django.views.generic.base import TemplateView
 from .models import *
+from abc import abstractproperty
+from . import urls
+from  django.views.generic.base import ContextMixin
+from abc import abstractproperty
+from taggit.models import Tag
 
-# Create your views here.
-class IndexView(TemplateView):
+
+class Link:
+    pass
+
+
+class LinkNameMixin(ContextMixin):
+    titles = {
+            'index': 'Обо мне',
+            'articles': 'Статьи',
+            'documentation':'Документация',
+            'translations':'Переводы',
+            'presentations':'Презентации',
+            'courses':'Курсы',
+            'conferences':'Конференции',
+            'webinars':'Вебинары',
+            'projects':'Проекты',
+        }
+    
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        all_links = []
+        class_name = self.__class__.__name__
+
+        for url in urls.urlpatterns:
+            link = Link()
+            link.name = url.name
+            link.title = self.titles.get(link.name)
+            link.style_class = ''
+            if link.name in class_name.lower():
+                link.style_class = 'activated'
+                context['header'] = self.titles.get(link.name)
+            all_links.append(link)
+        context['all_links'] = all_links
+        context['all_tags'] = Tag.objects.all()
+
+        return context
+
+
+class IndexView(LinkNameMixin, TemplateView):
     template_name = "index.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['aboutme'] = Aboutme.objects.first()
+      
         return context
 
-class ArticlesView(TemplateView):
-    template_name = "articles.html"
+
+class CustomBaseView(LinkNameMixin, TemplateView):
+    template_name = "info_view.html"
+    
+    @abstractproperty
+    def models_objects(self):
+        pass
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['articles'] = Articles.objects.first()
-        return context
-
-class DocumentationView(TemplateView):
-    template_name = "documentation.html"
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['documentation'] = Documentation.objects.first()
-        return context
-
-class TranslationsView(TemplateView):
-    template_name = "translations.html"
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['translations'] = Translations.objects.first()
+        context['objects'] = self.models_objects
         return context
 
 
-class PresentationsView(TemplateView):
-    template_name = "presentations.html"
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['presentations'] = Presentations.objects.first()
-        return context
+class ArticlesView(CustomBaseView):
+    @property
+    def models_objects(self):
+        return Articles.objects.all()
 
 
-class CoursesView(TemplateView):
-    template_name = "courses.html"
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['courses'] = Courses.objects.first()
-        return context
+class DocumentationView(CustomBaseView):
+    @property
+    def models_objects(self):
+        return Documentation.objects.all()
 
 
-class ConferencesView(TemplateView):
-    template_name = "conferences.html"
+class TranslationsView(CustomBaseView):
+    @property
+    def models_objects(self):
+        return Translations.objects.all()
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['conferences'] = Conferences.objects.first()
-        return context
 
-class WebinarsView(TemplateView):
-    template_name = "webinars.html"
+class PresentationsView(CustomBaseView):
+    @property
+    def models_objects(self):
+        return Presentations.objects.all()
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['webinars'] = Webinars.objects.first()
-        return context
 
-class ProjectsView(TemplateView):
-    template_name = "projects.html"
+class CoursesView(CustomBaseView):
+    @property
+    def models_objects(self):
+        return Courses.objects.all()
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['projects'] = Projects.objects.first()
-        return context
 
-# classes_name = ['Articles', 'Documentation']
+class ConferencesView(CustomBaseView):
+    @property
+    def models_objects(self):
+        return Conferences.objects.all()
 
-# class MetaView(type):
-#     def __init__(cls, name, bases, attrs):
-#         super().__init__(name,bases, attrs)
 
-# view_classes = []
-# for name in classes_name:
-#     view_classes.appesnd(
-#         MetaView(
-#             name,
-#             (TemplateView,),
-#             {   
-#                 'name': name.lower(),
-#                 'template_name': "{0}.html".format(name.lower()),
-#             }
-#         )
-#     )
+class WebinarsView(CustomBaseView):
+    @property
+    def models_objects(self):
+        return Webinars.objects.all()
+
+
+class ProjectsView(CustomBaseView):
+    @property
+    def models_objects(self):
+        return Projects.objects.all()
+
+
+class TagView(CustomBaseView):
+    @property
+    def models_objects(self):
+        return Tag.objects.all()
+

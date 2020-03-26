@@ -1,1 +1,7 @@
-{{ aboutme.description}}
+{% extends "base_temp.html" %}
+{% load martortags %}
+{% block content %}
+{% for item in aboutme.description_as_list %}
+<div class="item__reg">{{ item|safe_markdown}}</div>
+{% endfor%}
+{% endblock %}

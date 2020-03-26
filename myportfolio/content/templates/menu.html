@@ -1,0 +1,13 @@
+<div class="header">
+    <div class="header__logo">
+        <h1>{{ header }}</h1>
+    </div>
+</div>
+
+<div class="menu">
+    <ul>
+        {% for link in all_links %}
+            <a href="{% url link.name %}"><li class="{{link.style_class}}">{{ link.title }}</li></a>
+        {% endfor %}
+    </ul>
+</div>

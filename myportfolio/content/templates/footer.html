@@ -1,0 +1,12 @@
+<div class="links item__blank">
+    <a href="https://www.meetup.com/ru-RU/progmsk/" target="_blank"><i class="fa fa-meetup" style="font-size:40px"></i></a>
+    <a href="https://github.com/PakshNina" target="_blank"><i class="fa fa-github" style="font-size:40px"></i></a>
+    <a href="https://www.facebook.com/Ninakou" target="_blank"><i class="fa fa-facebook-square" style="font-size:40px"></i></a>
+    <a href="https://www.youtube.com/channel/UCrkVkuIEIVxVdT0TafOg8Vw" target="_blank"><i class='fa fa-youtube' style='font-size:40px'></i></a>
+    <a href="https://t.me/ninakou" target="_blank"><i class="fa fa-telegram" style="font-size:36px"></i></a>
+</div>
+<div class="item__blank">
+    {% for tag in all_tags %}
+        <span class="tags"> <a href="#">{{ tag.name|upper }}</a></span>
+    {% endfor %}
+</div>

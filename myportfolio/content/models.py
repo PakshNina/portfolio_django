@@ -1,6 +1,11 @@
 from django.db import models
 from taggit.managers import TaggableManager
 from single_instance_model.models import SingleInstanceModel
+from abc import ABCMeta
+import re
+from martor.models import MartorField
+from taggit.models import Tag
+from .mycode import transliterate
 
 
 class Aboutme(models.Model, SingleInstanceModel):
@@ -10,26 +15,39 @@ class Aboutme(models.Model, SingleInstanceModel):
         return "Обо мне"
 
     class Meta:
-        db_table = ''
-        managed = True
         verbose_name = 'Обо мне'
         verbose_name_plural = 'Обо мне'
     
-    description = models.TextField(verbose_name='Описание', max_length=5000, blank=True, null=True)
+    description = MartorField(verbose_name='Описание', max_length=5000, blank=True, null=True)
+
+    def description_as_list(self):
+        return self.description.split('\n')
+
+
+class CustomBaseModel(models.Model):
+
+    class Meta:
+        abstract = True
+
+    """Base model for class creation."""
+    title = models.CharField(verbose_name="Название", max_length=300)
+    link_type = models.CharField(verbose_name="Тип ссылки", max_length=10)
+    link = models.URLField(max_length=200, verbose_name="Ссылка на элемент")
     tags = TaggableManager()
 
+    def __str__(self):
+        return self.title
 
-class Documentation(models.Model):
+
+class Documentation(CustomBaseModel):
     """Documentaion content."""
+
     class Meta:
         verbose_name = 'Документация'
         verbose_name_plural = 'Документация'
 
-    title = models.CharField(verbose_name="Название", max_length=300)
-    link_type = models.CharField(verbose_name="Тип ссылки", max_length=10)
-    link = models.URLField(max_length=200)
 
-class Articles(Documentation):
+class Articles(CustomBaseModel):
     """Articles content."""
 
     class Meta:
@@ -37,7 +55,7 @@ class Articles(Documentation):
         verbose_name_plural = 'Статьи'
 
 
-class Translations(Documentation):
+class Translations(CustomBaseModel):
     """Translations content."""
 
     class Meta:
@@ -45,7 +63,7 @@ class Translations(Documentation):
         verbose_name_plural = 'Переводы'
 
 
-class Presentations(Documentation):
+class Presentations(CustomBaseModel):
     """Presentations content."""
 
     class Meta:
@@ -53,7 +71,7 @@ class Presentations(Documentation):
         verbose_name_plural = 'Презентации'
 
 
-class Courses(Documentation):
+class Courses(CustomBaseModel):
     """Courses content."""
 
     class Meta:
@@ -61,7 +79,7 @@ class Courses(Documentation):
         verbose_name_plural = 'Курсы'
 
 
-class Conferences(Documentation):
+class Conferences(CustomBaseModel):
     """Conferences content."""
 
     class Meta:
@@ -69,14 +87,15 @@ class Conferences(Documentation):
         verbose_name_plural = 'Конференции'
 
 
-class Webinars(Documentation):
+class Webinars(CustomBaseModel):
     """Webinars content."""
 
     class Meta:
         verbose_name = 'Вебинар'
         verbose_name_plural = 'Вебинары'
 
-class Projects(Documentation):
+
+class Projects(CustomBaseModel):
     """Projects content."""
 
     class Meta:

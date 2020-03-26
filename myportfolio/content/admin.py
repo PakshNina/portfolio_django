@@ -1,5 +1,5 @@
 from django.contrib import admin
-from content.models import * 
+from .models import * 
 from single_instance_model.admin import SingleInstanceModelAdmin
 
 
@@ -16,3 +16,5 @@ admin.site.register(Courses)
 admin.site.register(Conferences)
 admin.site.register(Webinars)
 admin.site.register(Projects)
+
+

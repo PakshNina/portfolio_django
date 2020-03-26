@@ -1,0 +1,14 @@
+{% extends "base_temp.html" %}
+{% load martortags %}
+{% block content %}
+{% for elem in objects %}
+<div class="item__reg">{{ elem.title }} <a href="{{ elem.link }}">[{{ elem.link_type }}]</a>
+    
+    {% for tag in elem.tags.all %}
+        <span class="tags">{{ tag.name|upper }}</span>
+    {% endfor %}
+</div>
+{% empty %}
+<div class="item__reg">Ничего нет</a></div>
+{% endfor %}
+{% endblock %}
